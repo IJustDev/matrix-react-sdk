@@ -202,6 +202,7 @@ export default createReactClass({
         this.updatePreventShrinking();
         this.props.onScroll(ev);
         this.checkFillState();
+        this.autoplayGifsAndVideos();
     },
 
     onResize: function() {
@@ -362,6 +363,39 @@ export default createReactClass({
         if (this._fillRequestWhileRunning) {
             this._fillRequestWhileRunning = false;
             this.checkFillState();
+        }
+    },
+
+    // This method checks whether the element is currently visible to the user or not.
+    isElementInClientViewPort: function(element, startY, endY) {
+        const offset = element.offsetTop;
+        return offset >= startY && offset <= endY;
+    },
+
+    // This method autoplays videos when autoplay is enabled and the videos are in viewport.
+    autoplayGifsAndVideos: function() {
+        const autoplay = SettingsStore.getValue("autoplayGifsAndVideos");
+        if (!autoplay) {
+            return;
+        }
+
+        const itemlist = this._itemlist.current.children;
+        const {clientHeight, scrollHeight, scrollTop} = this._getScrollNode();
+        const startY = scrollTop;
+        const endY = scrollTop + clientHeight;
+        const events = this.props.children[1];
+        const eventKeys = events.map((c) => c.key);
+        for (let i = 0; i < itemlist.length; i++) {
+            const element = itemlist[i];
+            const scrollToken = element.dataset["scrollTokens"] || undefined;
+            if (this.isElementInClientViewPort(element, startY, endY) &&
+                scrollToken !== undefined &&
+                eventKeys.includes(scrollToken)
+               ) {
+                try {
+                    element.children[0].children[1].childNodes[2].firstChild.play();
+                } catch {}
+            }
         }
     },
 

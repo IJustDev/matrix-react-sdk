@@ -175,7 +175,7 @@ export default createReactClass({
         return (
             <span className="mx_MVideoBody">
                 <video className="mx_MVideoBody" src={contentUrl} alt={content.body}
-                    controls preload={preload} muted={autoplay} autoPlay={autoplay}
+                    controls preload={preload} muted={autoplay}
                     height={height} width={width} poster={poster}>
                 </video>
                 <MFileBody {...this.props} decryptedBlob={this.state.decryptedBlob} />
