@@ -1366,6 +1366,22 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
             if (state === "SYNCING" && prevState === "SYNCING") {
                 return;
             }
+
+            if (state === "SYNCING" && (prevState === "CATCHUP" || prevState === "PREPARED")) {
+                MatrixClientPeg.get().checkCrossSignBootstrapHasCompleted().then(isValid => {
+                    if (!isValid) {
+                        ToastStore.sharedInstance().addOrReplaceToast({
+                            key: 'cross-signing-corrupt',
+                            title: "Your encryption upgrade failed",
+                            icon: "verification_warning",
+                            props: {},
+                            component: sdk.getComponent("toasts.ResetCrossSigningToast"),
+                            priority: ToastStore.PRIORITY_REALTIME,
+                        });
+                    }
+                });
+            }
+
             console.info("MatrixClient sync state => %s", state);
             if (state !== "PREPARED") { return; }
 
